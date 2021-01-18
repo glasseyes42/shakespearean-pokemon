@@ -25,7 +25,8 @@
   "homepage": "https://github.com/glasseyes42/shakespearean-pokemon#readme",
   "type": "module",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "superagent": "^6.1.0"
   },
   "devDependencies": {
     "eslint": "^7.18.0",
