@@ -12,6 +12,9 @@ export default (app) => {
         description: translated,
       });
     } catch (err) {
+      if (err.status && err.status === 404) {
+        return res.sendStatus(404);
+      }
       next(err);
     }
   });

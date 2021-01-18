@@ -43,6 +43,30 @@ describe('Service tests', () => {
             expect(translateNock.isDone()).toBe(true);
           }));
       });
+
+      it('should return not found for an unknown pokemon', async () => {
+        const pokeapiNock = nock('https://pokeapi.co/api')
+          .get('/v2/pokemon/does-not-exist')
+          .reply(404);
+
+        await request(app)
+          .get('/pokemon/does-not-exist')
+          .expect(404);
+
+        expect(pokeapiNock.isDone()).toBe(true);
+      });
+
+      it('should return failure if upstream api fails', async () => {
+        const pokeapiNock = nock('https://pokeapi.co/api')
+          .get('/v2/pokemon/anything')
+          .reply(500);
+
+        await request(app)
+          .get('/pokemon/anything')
+          .expect(500);
+
+        expect(pokeapiNock.isDone()).toBe(true);
+      });
     });
   });
 });
