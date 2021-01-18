@@ -3,7 +3,7 @@ import logger from './logger.js';
 
 const request = superagent.agent()
   .use((req) => {
-    logger.debug(`pokeapi requesting - ${req.url}`);
+    logger.debug(`funtranslations api requesting - ${req.url}`);
   });
 
 export default async (text) => {
