@@ -1,8 +1,8 @@
 import express from 'express';
 import routes from './routes.js';
 
-export default () => {
+export default (config) => {
   const app = express();
   routes(app);
-  return app.listen(4567);
+  return app.listen(config.port);
 };

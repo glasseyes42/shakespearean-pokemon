@@ -2,12 +2,16 @@ import request from 'supertest';
 import expect from 'expect';
 import nock from 'nock';
 
+import config from '../config/index.js';
 import createApp from '../src/index.js';
 import testCases from './data/translate.js';
 
-const app = createApp();
+describe('Service tests', async () => {
+  let app;
+  before(async () => {
+    app = createApp(await config());
+  });
 
-describe('Service tests', () => {
   it('starts a basic service', () => request(app)
     .get('/')
     .expect(404));
