@@ -7,6 +7,12 @@
     "test": "mocha --exit test/* ",
     "lint": "eslint ."
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "pre-push": "npm test"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/glasseyes42/shakespearean-pokemon.git"
