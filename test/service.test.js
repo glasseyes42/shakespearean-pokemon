@@ -71,6 +71,52 @@ describe('Service tests', async () => {
 
         expect(pokeapiNock.isDone()).toBe(true);
       });
+
+      describe('funtranslations auth', () => {
+        let authedApp;
+
+        before(async () => {
+          const authConfig = {
+            ...await config(),
+            port: 14568,
+            translateToken: 'abcdef',
+          };
+          authedApp = createApp(authConfig);
+        });
+
+        it('uses an auth header for funtranslations if configured', async () => {
+          const pokeapiNock = nock('https://pokeapi.co/api')
+            .get('/v2/pokemon/anything')
+            .reply(200, { species: { name: 'anything' } })
+            .get('/v2/pokemon-species/anything')
+            .reply(200, {
+              flavor_text_entries: [{
+                flavor_text: 'description text',
+                language: { name: 'en' },
+              }],
+            });
+
+          const translateNock = nock('https://api.funtranslations.com', {
+            reqheaders: {
+              'x-funtranslations-api-secret': 'abcdef',
+            },
+          }).post('/translate/shakespeare.json', { text: 'description text' })
+            .reply(200, {
+              contents: { translated: 'translated' },
+            });
+
+          await request(authedApp)
+            .get('/pokemon/anything')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body).toBeDefined();
+              expect(body.description).toBe('translated');
+
+              expect(pokeapiNock.isDone()).toBe(true);
+              expect(translateNock.isDone()).toBe(true);
+            });
+        });
+      });
     });
   });
 });

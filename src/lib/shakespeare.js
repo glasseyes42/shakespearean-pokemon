@@ -6,12 +6,17 @@ const request = superagent.agent()
     logger.debug(`funtranslations api requesting - ${req.url}`);
   });
 
-export default async (text) => {
-  const result = await request
-    .post('https://api.funtranslations.com/translate/shakespeare.json')
-    .send({
-      text,
-    });
+export default (config) =>
+  async (text) => {
+    const req = request
+      .post('https://api.funtranslations.com/translate/shakespeare.json')
+      .send({
+        text,
+      });
 
-  return result.body.contents.translated;
-};
+    if (config.translateToken) req.set('x-funtranslations-api-secret', config.translateToken);
+
+    const result = await req;
+
+    return result.body.contents.translated;
+  };

@@ -1,7 +1,9 @@
 import getDescription from './lib/pokeapi.js';
-import translate from './lib/shakespeare.js';
+import createTranslate from './lib/shakespeare.js';
 
-export default (app) => {
+export default ({ app, config }) => {
+  const translate = createTranslate(config);
+
   app.get('/pokemon/:name', async (req, res, next) => {
     try {
       const description = await getDescription(req.params.name);

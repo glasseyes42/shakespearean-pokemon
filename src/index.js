@@ -3,6 +3,6 @@ import routes from './routes.js';
 
 export default (config) => {
   const app = express();
-  routes(app);
+  routes({ app, config });
   return app.listen(config.port);
 };
