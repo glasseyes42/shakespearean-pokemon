@@ -2,6 +2,10 @@ import createConfig from './config/index.js';
 import logger from './src/lib/logger.js';
 import run from './src/index.js';
 
+process.on('SIGINT', () => {
+  process.exit(0);
+});
+
 (async () => {
   try {
     const config = await createConfig();
