@@ -14,8 +14,8 @@ export default ({ app, config }) => {
         description: translated,
       });
     } catch (err) {
-      if (err.status && err.status === 404) {
-        return res.sendStatus(404);
+      if (err.status && (err.status === 404 || err.status === 429)) {
+        return res.sendStatus(err.status);
       }
       next(err);
     }

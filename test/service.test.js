@@ -6,6 +6,17 @@ import config from '../config/index.js';
 import createApp from '../src/index.js';
 import testCases from './data/translate.js';
 
+const createSimplePokeapiNock = () => nock('https://pokeapi.co/api')
+  .get('/v2/pokemon/anything')
+  .reply(200, { species: { name: 'anything' } })
+  .get('/v2/pokemon-species/anything')
+  .reply(200, {
+    flavor_text_entries: [{
+      flavor_text: 'description text',
+      language: { name: 'en' },
+    }],
+  });
+
 describe('Service tests', async () => {
   let app;
   before(async () => {
@@ -17,7 +28,7 @@ describe('Service tests', async () => {
     .expect(404));
 
   describe('API', () => {
-    describe('translate', () => {
+    describe('GET /pokemon/:pokemon', () => {
       testCases.forEach(testCase => {
         const pokeapiNock = nock('https://pokeapi.co/api')
           .get(`/v2/pokemon/${testCase.name}`)
@@ -60,6 +71,20 @@ describe('Service tests', async () => {
         expect(pokeapiNock.isDone()).toBe(true);
       });
 
+      it('should return too many requests if translation api is exceeded', async () => {
+        const pokeapiNock = createSimplePokeapiNock();
+        const translateNock = nock('https://api.funtranslations.com')
+          .post('/translate/shakespeare.json')
+          .reply(429);
+
+        await request(app)
+          .get('/pokemon/anything')
+          .expect(429);
+
+        expect(pokeapiNock.isDone()).toBe(true);
+        expect(translateNock.isDone()).toBe(true);
+      });
+
       it('should return failure if upstream api fails', async () => {
         const pokeapiNock = nock('https://pokeapi.co/api')
           .get('/v2/pokemon/anything')
@@ -85,16 +110,7 @@ describe('Service tests', async () => {
         });
 
         it('uses an auth header for funtranslations if configured', async () => {
-          const pokeapiNock = nock('https://pokeapi.co/api')
-            .get('/v2/pokemon/anything')
-            .reply(200, { species: { name: 'anything' } })
-            .get('/v2/pokemon-species/anything')
-            .reply(200, {
-              flavor_text_entries: [{
-                flavor_text: 'description text',
-                language: { name: 'en' },
-              }],
-            });
+          const pokeapiNock = createSimplePokeapiNock();
 
           const translateNock = nock('https://api.funtranslations.com', {
             reqheaders: {
